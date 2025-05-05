@@ -7,7 +7,7 @@ class Window:
         # stop running when window closed
         self.root.protocol("WM_DELETE_WINDOW", self.close)
 
-        self.canvas = Canvas(self.root)
+        self.canvas = Canvas(self.root, width=width, height=height)
         self.canvas.pack()
         self.running = False
     
