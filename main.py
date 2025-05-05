@@ -10,10 +10,14 @@ def main():
     box.draw()
     box1 = Cell(win, 100, 2, 200, 100)
     box1.draw()
-    box2 = Cell(win, 50, 50, 500, 500)
+    box2 = Cell(win, 125, 125, 550, 550)
     box2.draw()
     box3 = Cell(win, 2, 100, 100, 200)
     box3.draw()
+
+    box.draw_move(box1)
+    box.draw_move(box3, True)
+    box1.draw_move(box3)
 
     win.wait_for_close()
 
