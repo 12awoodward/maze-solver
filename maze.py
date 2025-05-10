@@ -2,7 +2,7 @@ from time import sleep
 from cell import *
 
 class Maze:
-    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win):
+    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win = None):
         self.x1 = x1
         self.y1 = y1
         self.num_rows = num_rows
@@ -23,11 +23,14 @@ class Maze:
                 start_y = (j * self.cell_size_y) + self.y1
                 end_x = ((i + 1) * self.cell_size_x) + self.x1
                 end_y = ((j + 1) * self.cell_size_y) + self.y1
-                self.cells[-1].append(Cell(self.win, start_x, start_y, end_x, end_y))
+                self.cells[-1].append(Cell(start_x, start_y, end_x, end_y, self.win))
 
                 self.draw_cell(i, j)
     
     def draw_cell(self, i, j):
+        if not self.win:
+            return
+        
         self.cells[i][j].draw()
         self.animate()
         
