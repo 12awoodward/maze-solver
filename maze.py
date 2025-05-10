@@ -1,8 +1,9 @@
 from time import sleep
 from cell import *
+import random
 
 class Maze:
-    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win = None):
+    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win = None, seed = None):
         self.x1 = x1
         self.y1 = y1
         self.num_rows = num_rows
@@ -11,8 +12,12 @@ class Maze:
         self.cell_size_y = cell_size_y
         self.win = win
 
+        if seed:
+            random.seed(seed)
+
         self.create_cells()
         self.break_entrance_and_exit()
+        self.break_walls_r(0, 0)
 
     def create_cells(self):
         self.cells = []
@@ -47,3 +52,41 @@ class Maze:
         last_row = self.num_rows - 1
         self.cells[last_col][last_row].has_bottom_wall = False
         self.draw_cell(last_col, last_row)
+    
+    def break_walls_r(self, i, j):
+        self.cells[i][j].visited = True
+        moves = [(0,-1), (1,0), (0,1),(-1,0)]
+
+        while True:
+            possible_paths = []
+
+            for move in moves:
+                result = (i + move[0], j + move[1])
+                if result[0] >= 0 and result[0] < self.num_cols and result[1] >= 0 and result[1] < self.num_rows:
+                    if not self.cells[result[0]][result[1]].visited:
+                        possible_paths.append(move)
+
+            if not possible_paths:
+                self.draw_cell(i, j)
+                return
+            
+            chosen = random.choice(possible_paths)
+            new_coords = (i + chosen[0], j + chosen[1])
+            new_cell = self.cells[new_coords[0]][new_coords[1]]
+            current_cell = self.cells[i][j]
+
+            match chosen:
+                case (0,-1):
+                    current_cell.has_top_wall = False
+                    new_cell.has_bottom_wall  = False
+                case (1,0):
+                    current_cell.has_right_wall = False
+                    new_cell.has_left_wall  = False
+                case (0,1):
+                    current_cell.has_bottom_wall = False
+                    new_cell.has_top_wall  = False
+                case (-1,0):
+                    current_cell.has_left_wall = False
+                    new_cell.has_right_wall  = False
+
+            self.break_walls_r(new_coords[0], new_coords[1])

@@ -14,6 +14,7 @@ class Cell:
         self.bottom_right = Point(x2, y2)
 
         self.win = window
+        self.visited = False
 
     def draw(self):
         colors = ("#d9d9d9", "black")
