@@ -32,5 +32,6 @@ class Maze:
         self.animate()
         
     def animate(self):
+        interval = 1 / (self.num_cols * self.num_rows)
         self.win.redraw()
-        sleep(0.05)
+        sleep(interval)
