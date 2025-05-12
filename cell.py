@@ -35,9 +35,9 @@ class Cell:
         return Point(x, y)
     
     def draw_move(self, to_cell, undo=False):
-        color = "green"
+        color = "red"
         if undo:
-            color = "red"
+            color = "#a9a9a9"
         
         move = Line(self.get_midpoint(), to_cell.get_midpoint())
         self.win.draw_line(move, color)
