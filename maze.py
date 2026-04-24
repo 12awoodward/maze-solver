@@ -1,9 +1,23 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from time import sleep
-from cell import *
 import random
 
+from cell import Cell
+
+
 class Maze:
-    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y, win = None, seed = None):
+    def __init__(
+        self,
+        x1: int,
+        y1: int,
+        num_rows: int,
+        num_cols: int,
+        cell_size_x: int,
+        cell_size_y: int,
+        win: Window | None = None,
+        seed: float | None = None,
+    ):
         self.x1 = x1
         self.y1 = y1
         self.num_rows = num_rows
@@ -22,7 +36,7 @@ class Maze:
         self.solve()
 
     def create_cells(self):
-        self.cells = []
+        self.cells: list[list[Cell]] = []
 
         for i in range(self.num_cols):
             self.cells.append([])
@@ -34,18 +48,18 @@ class Maze:
                 self.cells[-1].append(Cell(start_x, start_y, end_x, end_y, self.win))
 
                 self.draw_cell(i, j)
-    
-    def draw_cell(self, i, j):
-        if not self.win:
-            return
-        
+
+    def draw_cell(self, i: int, j: int):
         self.cells[i][j].draw()
         self.animate()
-        
+
     def animate(self):
+        if not self.win:
+            return
+
         self.win.redraw()
         sleep(0.005)
-    
+
     def break_entrance_and_exit(self):
         self.cells[0][0].has_top_wall = False
         self.draw_cell(0, 0)
@@ -54,42 +68,49 @@ class Maze:
         last_row = self.num_rows - 1
         self.cells[last_col][last_row].has_bottom_wall = False
         self.draw_cell(last_col, last_row)
-    
-    def break_walls_r(self, i, j):
+
+    def break_walls_r(self, i: int, j: int):
         self.cells[i][j].visited = True
-        moves = [(0,-1), (1,0), (0,1),(-1,0)]
+        moves = [(0, -1), (1, 0), (0, 1), (-1, 0)]
 
         while True:
-            possible_paths = []
+            possible_paths: list[tuple[int, int]] = []
 
             for move in moves:
                 result = (i + move[0], j + move[1])
-                if result[0] >= 0 and result[0] < self.num_cols and result[1] >= 0 and result[1] < self.num_rows:
+                if (
+                    result[0] >= 0
+                    and result[0] < self.num_cols
+                    and result[1] >= 0
+                    and result[1] < self.num_rows
+                ):
                     if not self.cells[result[0]][result[1]].visited:
                         possible_paths.append(move)
 
             if not possible_paths:
                 self.draw_cell(i, j)
                 return
-            
+
             chosen = random.choice(possible_paths)
             new_coords = (i + chosen[0], j + chosen[1])
             new_cell = self.cells[new_coords[0]][new_coords[1]]
             current_cell = self.cells[i][j]
 
             match chosen:
-                case (0,-1):
+                case (0, -1):
                     current_cell.has_top_wall = False
-                    new_cell.has_bottom_wall  = False
-                case (1,0):
+                    new_cell.has_bottom_wall = False
+                case (1, 0):
                     current_cell.has_right_wall = False
-                    new_cell.has_left_wall  = False
-                case (0,1):
+                    new_cell.has_left_wall = False
+                case (0, 1):
                     current_cell.has_bottom_wall = False
-                    new_cell.has_top_wall  = False
-                case (-1,0):
+                    new_cell.has_top_wall = False
+                case (-1, 0):
                     current_cell.has_left_wall = False
-                    new_cell.has_right_wall  = False
+                    new_cell.has_right_wall = False
+                case _:
+                    pass
 
             self.break_walls_r(new_coords[0], new_coords[1])
 
@@ -97,24 +118,34 @@ class Maze:
         for col in self.cells:
             for cell in col:
                 cell.visited = False
-    
+
     def solve(self):
         return self.solve_r(0, 0)
 
-    def solve_r(self, i, j):
+    def solve_r(self, i: int, j: int):
         self.animate()
         current_cell = self.cells[i][j]
         current_cell.visited = True
 
         if i == self.num_cols - 1 and j == self.num_rows - 1:
             return True
-        
-        moves = [(0, -1, current_cell.has_top_wall), (1, 0, current_cell.has_right_wall), (0, 1, current_cell.has_bottom_wall), (-1, 0, current_cell.has_left_wall)]
+
+        moves = [
+            (0, -1, current_cell.has_top_wall),
+            (1, 0, current_cell.has_right_wall),
+            (0, 1, current_cell.has_bottom_wall),
+            (-1, 0, current_cell.has_left_wall),
+        ]
 
         for move in moves:
             new_coord = (i + move[0], j + move[1])
 
-            if new_coord[0] >= 0 and new_coord[0] < self.num_cols and new_coord[1] >= 0 and new_coord[1] < self.num_rows:
+            if (
+                new_coord[0] >= 0
+                and new_coord[0] < self.num_cols
+                and new_coord[1] >= 0
+                and new_coord[1] < self.num_rows
+            ):
                 new_cell = self.cells[new_coord[0]][new_coord[1]]
 
                 if not (move[2] or new_cell.visited):
@@ -123,5 +154,9 @@ class Maze:
                     if self.solve_r(new_coord[0], new_coord[1]):
                         return True
                     current_cell.draw_move(new_cell, True)
-        
+
         return False
+
+
+if TYPE_CHECKING:
+    from window import Window
